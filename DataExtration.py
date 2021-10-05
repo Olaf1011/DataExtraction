@@ -27,7 +27,6 @@ class DataHandler:
             print("couldn't open/find klm file")
 
 
-
     def CheckData(self):
         for x in range(len(self.mAllData[1])):
             #x + 1 (+1 because the lines start at 1) to show which line is incorrect data
