@@ -23,7 +23,6 @@ class DataHandler:
                 self.mAllData[0].append(root[0][0][x][1][0][0].text)
                 #Coordinates
                 self.mAllData[1].append(root[0][0][x][3][0][0][0].text.split())
-
         except:
             print("couldn't open/find klm file")
 
