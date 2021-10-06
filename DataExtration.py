@@ -15,6 +15,7 @@ class DataHandler:
         self.mUpperQaurtile = 0
         self.mLowerQuartile = 0
         self.mQaurtileRange = 0
+        self.mHasFile = False
 
     def ExtractData(self):
 
@@ -30,13 +31,16 @@ class DataHandler:
                 self.mAllData[0].append(root[0][0][x][1][0][0].text)
                 #Coordinates
                 self.mAllData[1].append(root[0][0][x][3][0][0][0].text.split())
-
+            self.mHasFile = True
         except:
             print("couldn't open/find klm file.")
+            self.mHasFile = False
 
 
 
     def CheckData(self):
+        if(not self.mHasFile):
+            return
         for x in range(len(self.mAllData[1])):
             #x + 1 (+1 because the lines start at 1) to show which line is incorrect data
             if(self.CheckPolygon(self.mAllData[1][x])):
