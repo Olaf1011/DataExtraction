@@ -1,5 +1,7 @@
 import statistics
 import xml.etree.ElementTree as xml
+import numpy 
+import matplotlib
 
 class DataHandler:
     def __init__(self):
@@ -8,6 +10,10 @@ class DataHandler:
         self.mMedianArray = []
         self.THRESHOLD = 10
         self.ExtractData()
+        self.countArray = []
+        self.UpperQaurtile = 0
+        self.LowerQuartile = 0
+        self.QaurtileRange = 0
 
     def ExtractData(self):
 
@@ -23,25 +29,51 @@ class DataHandler:
                 self.mAllData[0].append(root[0][0][x][1][0][0].text)
                 #Coordinates
                 self.mAllData[1].append(root[0][0][x][3][0][0][0].text.split())
+
         except:
-            print("couldn't open/find klm file")
+            print("couldn't open/find klm file.")
+
 
 
     def CheckData(self):
         for x in range(len(self.mAllData[1])):
             #x + 1 (+1 because the lines start at 1) to show which line is incorrect data
             if(self.CheckPolygon(self.mAllData[1][x])):
-                print("Line:", x + 1 , "is not a polygon")
+                print("Line:", x + 1 , "is not a polygon.")
 
             self.CheckAverage(self.mAllData[1][x], x)
             self.AddToMedian(self.mAllData[1][x]);
+
         #Needs to be outside of the loop because it needs the average amount of items in each element
         self.CheckBelowAverage();
         self.mMedianArray.sort()
-        
-        print("Median is:" ,statistics.median(self.mMedianArray))
-        print("Mode is:" ,statistics.mode(self.mMedianArray))
+        #put quartile ranges after this point THOMAS
 
+        self.Qaurtiles()
+        self.CountCheck()
+
+        self.PrintData()
+        self.NumberPolygonGrouping()
+
+    def Qaurtiles(self):
+        #Finds the Lower and Upper Quartiles and calculates the Inter Quartile Range 
+        self.LowerQuartile = numpy.quantile(self.mMedianArray, 0.25)
+        self.UpperQaurtile = numpy.quantile(self.mMedianArray, 0.75)
+        self.QaurtileRange = self.UpperQaurtile - self.LowerQuartile
+        
+    def PrintData(self):
+        print("Lower Quartile is:" ,self.LowerQuartile)
+        print("Median is:" ,statistics.median(self.mMedianArray))
+        print("Upper Qaurtile is:" ,self.UpperQaurtile)
+        print("Qaurtile Range is:" ,self.QaurtileRange)
+        print("Mode is:" ,statistics.mode(self.mMedianArray))
+        
+
+    def NumberPolygonGrouping(self):
+        #Uses countArray to display occurences not equal to 0 as a total occurences of polygons  
+        for x in range(len(self.countArray)):
+            if self.countArray[x] != 0:
+                print("There is", self.countArray[x],"occurences of", x,"sided polygons.")
 
     def AddToMedian(self, lineData):
         self.mMedianArray.append(len(lineData))
@@ -59,6 +91,15 @@ class DataHandler:
             self.mAverage /=  len(self.mAllData[1])
             print("Average is:",int(self.mAverage))
 
+    def CountCheck(self):
+        x = 0
+        i = 0
+        #Counts and appends the occurences of length by group from mMedianArray into countArray
+        while x < len(self.mMedianArray):
+          countResult = self.mMedianArray.count(i)
+          self.countArray.append(countResult)
+          x += countResult
+          i += 1
 
     def CheckBelowAverage(self):
 
