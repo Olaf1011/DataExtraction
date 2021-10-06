@@ -340,3 +340,6 @@ ASALocalRun/
 healthchecksdb
 /bigData.kml
 /AverageResult.txt
+/Histogram of total number of points.png
+/Boxplot of total number of points.png
+/Barchart of total number of points.png

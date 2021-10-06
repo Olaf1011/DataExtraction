@@ -1,7 +1,8 @@
 import statistics
+import io
 import xml.etree.ElementTree as xml
-import numpy 
-import matplotlib
+import numpy as np
+import matplotlib.pyplot as plt
 
 class DataHandler:
     def __init__(self):
@@ -10,10 +11,10 @@ class DataHandler:
         self.mMedianArray = []
         self.THRESHOLD = 10
         self.ExtractData()
-        self.countArray = []
-        self.UpperQaurtile = 0
-        self.LowerQuartile = 0
-        self.QaurtileRange = 0
+        self.mCountArray = []
+        self.mUpperQaurtile = 0
+        self.mLowerQuartile = 0
+        self.mQaurtileRange = 0
 
     def ExtractData(self):
 
@@ -54,26 +55,27 @@ class DataHandler:
 
         self.PrintData()
         self.NumberPolygonGrouping()
+        self.PlotData()
 
     def Qaurtiles(self):
         #Finds the Lower and Upper Quartiles and calculates the Inter Quartile Range 
-        self.LowerQuartile = numpy.quantile(self.mMedianArray, 0.25)
-        self.UpperQaurtile = numpy.quantile(self.mMedianArray, 0.75)
-        self.QaurtileRange = self.UpperQaurtile - self.LowerQuartile
+        self.mLowerQuartile = np.quantile(self.mMedianArray, 0.25)
+        self.mUpperQaurtile = np.quantile(self.mMedianArray, 0.75)
+        self.mQaurtileRange = self.mUpperQaurtile - self.mLowerQuartile
         
     def PrintData(self):
-        print("Lower Quartile is:" ,self.LowerQuartile)
+        print("Lower Quartile is:" ,self.mLowerQuartile)
         print("Median is:" ,statistics.median(self.mMedianArray))
-        print("Upper Qaurtile is:" ,self.UpperQaurtile)
-        print("Qaurtile Range is:" ,self.QaurtileRange)
+        print("Upper Qaurtile is:" ,self.mUpperQaurtile)
+        print("Qaurtile Range is:" ,self.mQaurtileRange)
         print("Mode is:" ,statistics.mode(self.mMedianArray))
         
 
     def NumberPolygonGrouping(self):
         #Uses countArray to display occurences not equal to 0 as a total occurences of polygons  
-        for x in range(len(self.countArray)):
-            if self.countArray[x] != 0:
-                print("There is", self.countArray[x],"occurences of", x,"sided polygons.")
+        for x in range(len(self.mCountArray)):
+            if self.mCountArray[x] != 0:
+                print("There is", self.mCountArray[x],"occurences of", x,"sided polygons.")
 
     def AddToMedian(self, lineData):
         self.mMedianArray.append(len(lineData))
@@ -97,7 +99,7 @@ class DataHandler:
         #Counts and appends the occurences of length by group from mMedianArray into countArray
         while x < len(self.mMedianArray):
           countResult = self.mMedianArray.count(i)
-          self.countArray.append(countResult)
+          self.mCountArray.append(countResult)
           x += countResult
           i += 1
 
@@ -115,9 +117,33 @@ class DataHandler:
                 f.write(x)
         f.close()
 
+    def PlotData(self):
+        plt.figure(1)
+        plt.boxplot(self.mMedianArray)
+        plt.savefig("Boxplot of total number of points")
 
-    
+        plt.figure(2)
+        plt.hist(self.mMedianArray)
+        plt.savefig("Histogram of total number of points")
+
+
+        tempArrayX = []
+        tempArrayY = []
+        for i in range(len(self.mCountArray)):
+            if(self.mCountArray[i] != 0):
+                tempArrayX.append(i)
+                tempArrayY.append(self.mCountArray[i])
+        print(len(self.mMedianArray))
+        plt.figure(3)
+        plt.bar(tempArrayX, tempArrayY)
+        plt.savefig("Barchart of total number of points")
+              
+        plt.show()
+
+
 
 Main = DataHandler()
 Main.CheckData();
+
 print("Done")
+
