@@ -10,19 +10,22 @@ class DataHandler:
         self.mAverage = 0
         self.mMedianArray = []
         self.THRESHOLD = 10
-        self.ExtractData()
+        self.mHasFile = False
         self.mCountArray = []
         self.mUpperQaurtile = 0
         self.mLowerQuartile = 0
         self.mQaurtileRange = 0
-        self.mHasFile = False
+
+        #Start extracting
+        self.ExtractData()
 
     def ExtractData(self):
 
         try:
             #To Do Rename bigData.xml
             #Opens kml(xml) file
-            myFile = xml.parse("bigData.kml")
+
+            myFile = xml.parse(str(self.GetFileName()))
             root = myFile.getroot()
 
             #look for all instances of coordinats in kml file
@@ -32,11 +35,20 @@ class DataHandler:
                 #Coordinates
                 self.mAllData[1].append(root[0][0][x][3][0][0][0].text.split())
             self.mHasFile = True
+
         except:
             print("couldn't open/find klm file.")
             self.mHasFile = False
 
-
+    def GetFileName(self):
+        inputName = input("Name of file: ")
+        temp = inputName.split(".")
+        try:
+            if(temp[1] == ".kml"):
+                return inputName
+        except:
+            inputName += ".kml"
+            return inputName
 
     def CheckData(self):
         if(not self.mHasFile):
