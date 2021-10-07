@@ -10,18 +10,19 @@ class DataHandler:
         self.mAverage = 0
         self.mMedianArray = []
         self.THRESHOLD = 10
-        self.ExtractData()
         self.mCountArray = []
         self.mUpperQaurtile = 0
         self.mLowerQuartile = 0
         self.mQaurtileRange = 0
 
+        self.ExtractData()
+        
     def ExtractData(self):
 
         try:
             #To Do Rename bigData.xml
             #Opens kml(xml) file
-            myFile = xml.parse("bigData.kml")
+            myFile = xml.parse(self.GetFileName())
             root = myFile.getroot()
 
             #look for all instances of coordinats in kml file
@@ -34,7 +35,21 @@ class DataHandler:
         except:
             print("couldn't open/find klm file.")
 
-
+    def GetFileName(self):
+        inputName = input("Name of file: ")
+        temp = inputName.split(".")
+        try:
+            if(temp[1] == ".kml"):
+                return inputName
+            else:
+                temp[1] = ".kml"
+                return temp[0] + temp[1]
+        except:
+            if(inputName == ""):
+                inputName = "bigData.kml"
+            else:
+                inputName += ".kml"
+            return inputName
 
     def CheckData(self):
         for x in range(len(self.mAllData[1])):
@@ -119,9 +134,13 @@ class DataHandler:
 
     def PlotData(self):
         plt.figure(1)
-        plt.boxplot(self.mMedianArray)
+        bp = plt.boxplot(self.mMedianArray,meanline=True, showmeans=True)
+        plt.xticks([1], ['mon'])
         plt.savefig("Boxplot of total number of points")
-
+        print(bp['medians'][0].get_ydata())
+        print(bp['means'][0].get_ydata())
+        print(bp['boxes'][0].get_ydata())
+        
         plt.figure(2)
         plt.hist(self.mMedianArray)
         plt.savefig("Histogram of total number of points")
@@ -134,9 +153,68 @@ class DataHandler:
                 tempArrayX.append(i)
                 tempArrayY.append(self.mCountArray[i])
         print(len(self.mMedianArray))
+
+        
+        FirstQ = int(len(tempArrayY)/4)
+        SecondQ = FirstQ * 2
+        ThirdQ = FirstQ * 3
+        FourthQ = len(tempArrayY)
+
+        tempArrayAx = []
+        tempArrayAy = []
+        tempArrayBx = []
+        tempArrayBy = []
+        tempArrayCx = []
+        tempArrayCy = []
+        tempArrayDx = []
+        tempArrayDy = []
+
+        for i in range(0 , FirstQ):
+            tempArrayAx.append(tempArrayX[i])
+            tempArrayAy.append(tempArrayY[i])
+
+        for i in range(FirstQ + 1 , SecondQ):
+            tempArrayBx.append(tempArrayX[i])
+            tempArrayBy.append(tempArrayY[i])
+
+        for i in range(SecondQ + 1 , ThirdQ):
+            tempArrayCx.append(tempArrayX[i])
+            tempArrayCy.append(tempArrayY[i])
+
+        for i in range(ThirdQ + 1 , FourthQ):
+            tempArrayDx.append(tempArrayX[i])
+            tempArrayDy.append(tempArrayY[i])
+
         plt.figure(3)
+        plt.subplot(2,2,1)
+        plt.boxplot(tempArrayAx)
+
+        plt.subplot(2,2,2)
+        plt.boxplot(tempArrayBx)
+
+        plt.subplot(2,2,3)
+        plt.boxplot(tempArrayCx)
+
+        plt.subplot(2,2,4)
+        plt.boxplot(tempArrayDx)
+
+        plt.figure(4)
         plt.bar(tempArrayX, tempArrayY)
         plt.savefig("Barchart of total number of points")
+
+        plt.figure(5)
+        plt.subplot(2,2,1)
+        plt.bar(tempArrayAx, tempArrayAy)
+        
+        plt.subplot(2,2,2)
+        plt.bar(tempArrayBx, tempArrayBy)
+
+        plt.subplot(2,2,3)
+        plt.bar(tempArrayCx, tempArrayCy)
+
+        plt.subplot(2,2,4)
+        plt.bar(tempArrayDx, tempArrayDy)
+        
               
         plt.show()
 
