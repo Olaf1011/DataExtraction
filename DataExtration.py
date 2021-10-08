@@ -3,6 +3,7 @@ import io
 import xml.etree.ElementTree as xml
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib.patches as patches
 
 class Position(object):
     def __init__(self,pos):
@@ -142,6 +143,7 @@ class DataHandler:
 
     def PlotData(self):
         plt.figure(1)
+        #plt.subplot()
         bp = plt.boxplot(self.mMedianArray,meanline=True, showmeans=True)
         plt.xticks([1], ['mon'])
         plt.savefig("Boxplot of total number of points")
@@ -161,82 +163,98 @@ class DataHandler:
 
         textstr = '\n'.join(DataPoints)
         print(textstr)
-        plt.text(0.05, 0.95, textstr, transform=ax.transAxes, fontsize=14, verticalalignment='top')
+
+        ## build a rectangle in axes coords
+        #left, width = .25, .5
+        #bottom, height = .25, .5
+        #right = left + width
+        #top = bottom + height
+        #fig = plt.figure()
+        bp.add_axes([0, 0, 0.1, 0.1])
+        ## axes coordinates: (0, 0) is bottom left and (1, 1) is upper right
+        #p = patches.Rectangle((left, bottom), width, height,fill=False, transform=ax.transAxes, clip_on=False)
+        #ax.add_patch(p)
+
+        #ax.text(right, top, 'right bottom',horizontalalignment='right',verticalalignment='top',transform=ax.transAxes)
+
+        plt.text(.75, .75, textstr,horizontalalignment='right',verticalalignment='top', transform = bp.transAxes)
+
+        
         
 
-        plt.figure(2)
-        plt.hist(self.mMedianArray)
-        plt.savefig("Histogram of total number of points")
+        #plt.figure(3)
+        #plt.hist(self.mMedianArray)
+        #plt.savefig("Histogram of total number of points")
 
 
-        tempArrayX = []
-        tempArrayY = []
-        for i in range(len(self.mCountArray)):
-            if(self.mCountArray[i] != 0):
-                tempArrayX.append(i)
-                tempArrayY.append(self.mCountArray[i])
-        print(len(self.mMedianArray))
+        #tempArrayX = []
+        #tempArrayY = []
+        #for i in range(len(self.mCountArray)):
+        #    if(self.mCountArray[i] != 0):
+        #        tempArrayX.append(i)
+        #        tempArrayY.append(self.mCountArray[i])
+        #print(len(self.mMedianArray))
 
         
-        FirstQ = int(len(tempArrayY)/4)
-        SecondQ = FirstQ * 2
-        ThirdQ = FirstQ * 3
-        FourthQ = len(tempArrayY)
+        #FirstQ = int(len(tempArrayY)/4)
+        #SecondQ = FirstQ * 2
+        #ThirdQ = FirstQ * 3
+        #FourthQ = len(tempArrayY)
 
-        tempArrayAx = []
-        tempArrayAy = []
-        tempArrayBx = []
-        tempArrayBy = []
-        tempArrayCx = []
-        tempArrayCy = []
-        tempArrayDx = []
-        tempArrayDy = []
+        #tempArrayAx = []
+        #tempArrayAy = []
+        #tempArrayBx = []
+        #tempArrayBy = []
+        #tempArrayCx = []
+        #tempArrayCy = []
+        #tempArrayDx = []
+        #tempArrayDy = []
 
-        for i in range(0 , FirstQ):
-            tempArrayAx.append(tempArrayX[i])
-            tempArrayAy.append(tempArrayY[i])
+        #for i in range(0 , FirstQ):
+        #    tempArrayAx.append(tempArrayX[i])
+        #    tempArrayAy.append(tempArrayY[i])
 
-        for i in range(FirstQ + 1 , SecondQ):
-            tempArrayBx.append(tempArrayX[i])
-            tempArrayBy.append(tempArrayY[i])
+        #for i in range(FirstQ + 1 , SecondQ):
+        #    tempArrayBx.append(tempArrayX[i])
+        #    tempArrayBy.append(tempArrayY[i])
 
-        for i in range(SecondQ + 1 , ThirdQ):
-            tempArrayCx.append(tempArrayX[i])
-            tempArrayCy.append(tempArrayY[i])
+        #for i in range(SecondQ + 1 , ThirdQ):
+        #    tempArrayCx.append(tempArrayX[i])
+        #    tempArrayCy.append(tempArrayY[i])
 
-        for i in range(ThirdQ + 1 , FourthQ):
-            tempArrayDx.append(tempArrayX[i])
-            tempArrayDy.append(tempArrayY[i])
+        #for i in range(ThirdQ + 1 , FourthQ):
+        #    tempArrayDx.append(tempArrayX[i])
+        #    tempArrayDy.append(tempArrayY[i])
 
-        plt.figure(3)
-        plt.subplot(2,2,1)
-        plt.boxplot(tempArrayAx)
+        #plt.figure(3)
+        #plt.subplot(2,2,1)
+        #plt.boxplot(tempArrayAx)
 
-        plt.subplot(2,2,2)
-        plt.boxplot(tempArrayBx)
+        #plt.subplot(2,2,2)
+        #plt.boxplot(tempArrayBx)
 
-        plt.subplot(2,2,3)
-        plt.boxplot(tempArrayCx)
+        #plt.subplot(2,2,3)
+        #plt.boxplot(tempArrayCx)
 
-        plt.subplot(2,2,4)
-        plt.boxplot(tempArrayDx)
+        #plt.subplot(2,2,4)
+        #plt.boxplot(tempArrayDx)
 
-        plt.figure(4)
-        plt.bar(tempArrayX, tempArrayY)
-        plt.savefig("Barchart of total number of points")
+        #plt.figure(4)
+        #plt.bar(tempArrayX, tempArrayY)
+        #plt.savefig("Barchart of total number of points")
 
-        plt.figure(5)
-        plt.subplot(2,2,1)
-        plt.bar(tempArrayAx, tempArrayAy)
+        #plt.figure(5)
+        #plt.subplot(2,2,1)
+        #plt.bar(tempArrayAx, tempArrayAy)
         
-        plt.subplot(2,2,2)
-        plt.bar(tempArrayBx, tempArrayBy)
+        #plt.subplot(2,2,2)
+        #plt.bar(tempArrayBx, tempArrayBy)
 
-        plt.subplot(2,2,3)
-        plt.bar(tempArrayCx, tempArrayCy)
+        #plt.subplot(2,2,3)
+        #plt.bar(tempArrayCx, tempArrayCy)
 
-        plt.subplot(2,2,4)
-        plt.bar(tempArrayDx, tempArrayDy)
+        #plt.subplot(2,2,4)
+        #plt.bar(tempArrayDx, tempArrayDy)
         
               
         plt.show()
