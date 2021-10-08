@@ -4,12 +4,26 @@ import xml.etree.ElementTree as xml
 import numpy as np
 import matplotlib.pyplot as plt
 
+class Position(object):
+    def __init__(self,pos):
+        self.x = pos[0]
+        self.y = pos[1]
+
+class ImportedData(object):
+    def __init__(self, coords = None, name = None):
+        self.pos = []
+        for i in range(len(coords)):
+            self.pos.append(Position(coords[i].split(",")))
+
+        self.name = name
+
 class DataHandler:
     def __init__(self):
         
-        self.mAllData = [[],[]]
-        self.mAverage = 0
+        self.mAllData = []
+        self.mCountArray = []
         self.mMedianArray = []
+        self.mAverage = 0
         self.mMedian = 0
         self.mUpperQaurtile = 0
         self.mLowerQuartile = 0
@@ -17,42 +31,40 @@ class DataHandler:
         self.CalculatedMax = 0
         self.CalculatedMin = 0
         self.THRESHOLD = 10
+        #This has to be last!
         self.ExtractData()
-        self.mCountArray = []
         
 
     def ExtractData(self):
-
-        try:
+        #try:
             #To Do Rename bigData.xml
             #Opens kml(xml) file
             myFile = xml.parse("bigData.kml")
             root = myFile.getroot()
 
             #look for all instances of coordinats in kml file
-            for x  in range(1, len(root[0][0]) - 1):
-                #ODSCode
-                self.mAllData[0].append(root[0][0][x][1][0][0].text)
-                #Coordinates
-                self.mAllData[1].append(root[0][0][x][3][0][0][0].text.split())
+            for i  in range(1, len(root[0][0]) - 1):
+                #Coordinates ,ODSCode
+                self.mAllData.append(ImportedData(root[0][0][i][3][0][0][0].text.split(), root[0][0][i][1][0][0].text))
+
             self.mHasFile = True
 
-        except:
-            print("couldn't open/find klm file.")
-            self.mHasFile = False
+        #except:
+        #    print("couldn't open/find klm file.")
+        #    self.mHasFile = False
 
 
 
     def CheckData(self):
         if(not self.mHasFile):
             return
-        for x in range(len(self.mAllData[1])):
+        for x in range(len(self.mAllData)):
             #x + 1 (+1 because the lines start at 1) to show which line is incorrect data
-            if(self.CheckPolygon(self.mAllData[1][x])):
+            if(self.CheckPolygon(self.mAllData[x].pos)):
                 print("Line:", x + 1 , "is not a polygon.")
 
-            self.CheckAverage(self.mAllData[1][x], x)
-            self.AddToMedian(self.mAllData[1][x]);
+            self.CheckAverage(self.mAllData[x].pos, x)
+            self.AddToMedian(self.mAllData[x].pos);
 
         #Needs to be outside of the loop because it needs the average amount of items in each element
         self.CheckBelowAverage();
@@ -62,8 +74,8 @@ class DataHandler:
         self.Qaurtiles()
         self.CountCheck()
 
-        self.PrintData()
-        self.NumberPolygonGrouping()
+        #self.PrintData()
+        #self.NumberPolygonGrouping()
         self.PlotData()
 
     def Qaurtiles(self):
@@ -96,14 +108,13 @@ class DataHandler:
         #Checks how big the array is and picks the integer for the last item in the array
         lastItem = len(lineData) - 1    
         #Checks if the first item and last item are not the same. Meaning it's not a complete polygon.
-        return(lineData[0] != lineData[lastItem])         
+        return(lineData[0].x != lineData[lastItem].x and lineData[0].y != lineData[lastItem].y)         
 
     def CheckAverage(self, lineData, i):
         self.mAverage += len(lineData)
         #If it's the last item in the list divide by the total of elements in mAllData[1] 
-        if((i + 1) == len(self.mAllData[1])):
-            self.mAverage /=  len(self.mAllData[1])
-            print("Average is:",int(self.mAverage))
+        if((i + 1) == len(self.mAllData)):
+            self.mAverage /=  len(self.mAllData)
 
     def CountCheck(self):
         x = 0
@@ -120,11 +131,11 @@ class DataHandler:
         #Prints the result into a txt file for easier use. (!!Overwrites the previous one with same name!!)
         f = open("AverageResult.txt", "w")
 
-        for x in range(len(self.mAllData[1])):
+        for x in range(len(self.mAllData)):
             #Checks if the items in element is less than the average amount of items in elements.
             #If true print which element has too little data. 
             #Threshold is to make sure that it isn't a too little difference.
-            if(len(self.mAllData[1][x]) < self.mAverage - self.THRESHOLD):
+            if(len(self.mAllData[x].pos) < self.mAverage - self.THRESHOLD):
                 x = "line: " + str(x) + " has less than " + str(int(self.mAverage)) + " - " + str(self.THRESHOLD) + " data points\n"
                 f.write(x)
         f.close()
@@ -134,27 +145,23 @@ class DataHandler:
         bp = plt.boxplot(self.mMedianArray,meanline=True, showmeans=True)
         plt.xticks([1], ['mon'])
         plt.savefig("Boxplot of total number of points")
-        print(bp['medians'][0].get_ydata())
-        print(bp['means'][0].get_ydata())
-        print(bp['boxes'][0].get_ydata())
-        print(bp['caps'][0].get_ydata())
-        print(bp['caps'][1].get_ydata())
 
-        MEAN = "Mean is: {}".format(bp['means'][0].get_ydata(0))
-        MED = "Median is: {}".format(bp['medians'][0].get_ydata(0))
-        LQ = "Lower Quartile is: {}".format(bp['boxes'][0].get_ydata(0))
-        UQ = "Upper Quartile is: {}".format(bp['boxes'][0].get_ydata(2))
-        IQR = "Interqaurtile Range is: {}".format(self.mQaurtileRange)
+        DataPoints = []
 
-        AMAX = "Actual Max is: {}".format(max(self.mMedianArray))
-        CMAX = "Calculated Max is: {}".format(bp['caps'][0].get_ydata(0))
-        AMIN = "Actual Min is: {}".format(min(self.mMedianArray))
-        CMIN = "Calculated Min is: {}".format(bp['caps'][0].get_ydata(0))
+        DataPoints.append("Mean is: {:d}".format(int(bp['means'][0].get_ydata()[0])))
+        DataPoints.append("Median is: {:d}".format(int(bp['medians'][0].get_ydata()[0])))
+        DataPoints.append("Lower Quartile is: {:d}".format(int(bp['boxes'][0].get_ydata()[0])))
+        DataPoints.append("Upper Quartile is: {:d}".format(int(bp['boxes'][0].get_ydata()[2])))
+        DataPoints.append("Interqaurtile Range is: {:d}".format(int(self.mQaurtileRange)))
 
-        DataPoints = [MEAN,MED,LQ,UQ,IQR,AMAX,CMAX,AMIN,CMIN]
+        DataPoints.append("Actual Max is: {:d}".format(int(max(self.mMedianArray))))
+        DataPoints.append("Calculated Max is: {:d}".format(int(bp['caps'][1].get_ydata()[0])))
+        DataPoints.append("Actual Min is: {:d}".format(int(min(self.mMedianArray))))
+        DataPoints.append("Calculated Min is: {:d}".format(int(bp['caps'][0].get_ydata()[0])))
+
         textstr = '\n'.join(DataPoints)
         print(textstr)
-        #plt.text(0.05, 0.95, textstr, transform=ax.transAxes, fontsize=14, verticalalignment='top')
+        plt.text(0.05, 0.95, textstr, transform=ax.transAxes, fontsize=14, verticalalignment='top')
         
 
         plt.figure(2)
