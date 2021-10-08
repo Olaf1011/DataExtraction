@@ -6,15 +6,20 @@ import matplotlib.pyplot as plt
 
 class DataHandler:
     def __init__(self):
+        
         self.mAllData = [[],[]]
         self.mAverage = 0
         self.mMedianArray = []
-        self.THRESHOLD = 10
-        self.ExtractData()
-        self.mCountArray = []
+        self.mMedian = 0
         self.mUpperQaurtile = 0
         self.mLowerQuartile = 0
         self.mQaurtileRange = 0
+        self.CalculatedMax = 0
+        self.CalculatedMin = 0
+        self.THRESHOLD = 10
+        self.ExtractData()
+        self.mCountArray = []
+        
 
     def ExtractData(self):
 
@@ -63,13 +68,16 @@ class DataHandler:
 
     def Qaurtiles(self):
         #Finds the Lower and Upper Quartiles and calculates the Inter Quartile Range 
+        self.mMedian = statistics.median(self.mMedianArray)
         self.mLowerQuartile = np.quantile(self.mMedianArray, 0.25)
         self.mUpperQaurtile = np.quantile(self.mMedianArray, 0.75)
         self.mQaurtileRange = self.mUpperQaurtile - self.mLowerQuartile
-        
+        self.CalculatedMax = self.mUpperQaurtile + (1.5 * self.mQaurtileRange)
+        self.CalculatedMin = self.mLowerQuartile - (1.5 * self.mQaurtileRange)
+
     def PrintData(self):
         print("Lower Quartile is:" ,self.mLowerQuartile)
-        print("Median is:" ,statistics.median(self.mMedianArray))
+        print("Median is:" ,self.mMedian)
         print("Upper Qaurtile is:" ,self.mUpperQaurtile)
         print("Qaurtile Range is:" ,self.mQaurtileRange)
         print("Mode is:" ,statistics.mode(self.mMedianArray))
@@ -129,7 +137,26 @@ class DataHandler:
         print(bp['medians'][0].get_ydata())
         print(bp['means'][0].get_ydata())
         print(bp['boxes'][0].get_ydata())
+        print(bp['caps'][0].get_ydata())
+        print(bp['caps'][1].get_ydata())
+
+        MEAN = "Mean is: {}".format(bp['means'][0].get_ydata(0))
+        MED = "Median is: {}".format(bp['medians'][0].get_ydata(0))
+        LQ = "Lower Quartile is: {}".format(bp['boxes'][0].get_ydata(0))
+        UQ = "Upper Quartile is: {}".format(bp['boxes'][0].get_ydata(2))
+        IQR = "Interqaurtile Range is: {}".format(self.mQaurtileRange)
+
+        AMAX = "Actual Max is: {}".format(max(self.mMedianArray))
+        CMAX = "Calculated Max is: {}".format(bp['caps'][0].get_ydata(0))
+        AMIN = "Actual Min is: {}".format(min(self.mMedianArray))
+        CMIN = "Calculated Min is: {}".format(bp['caps'][0].get_ydata(0))
+
+        DataPoints = [MEAN,MED,LQ,UQ,IQR,AMAX,CMAX,AMIN,CMIN]
+        textstr = '\n'.join(DataPoints)
+        print(textstr)
+        #plt.text(0.05, 0.95, textstr, transform=ax.transAxes, fontsize=14, verticalalignment='top')
         
+
         plt.figure(2)
         plt.hist(self.mMedianArray)
         plt.savefig("Histogram of total number of points")
@@ -214,3 +241,26 @@ Main.CheckData();
 
 print("Done")
 
+#from ground.base import get_context
+#from bentley_ottmann.planar import contour_self_intersects
+
+#context = get_context()
+#Point, segment = context.point_cls, context.segment_cls
+##unit_segments = [segment(point(0, 0), point(1, 2)), 
+##                 segment(point(1, 2), point(2, 0)),
+##                 segment(point(2, 0), point(0,0))]
+
+#arrayTomBeingACunt = ["0,0","1,0","0,1"]
+#arrayTomBeingACuntB = [arrayTomBeingACunt[0].split(","),arrayTomBeingACunt[1].split(","),arrayTomBeingACunt[2].split(",")]
+
+#Contour = context.contour_cls
+
+##complexPolygonT = Contour([Point(0, 0), Point(1, 0), Point(0, 1)])
+
+#complexPolygonT = Contour([Point(arrayTomBeingACuntB[0][0],arrayTomBeingACuntB[0][1]), Point(arrayTomBeingACuntB[1][0],arrayTomBeingACuntB[1][1]), Point(arrayTomBeingACuntB[2][0],arrayTomBeingACuntB[2][1])])
+#complexPolygonC = Contour([Point(0, 0), Point(1, 0), Point(0, 1), Point(1,1)])
+#complexPolygonS = Contour([Point(0, 0), Point(1, 0), Point(1, 1), Point(0,1)])
+
+#print(contour_self_intersects(complexPolygonT))
+#print(contour_self_intersects(complexPolygonC))
+#print(contour_self_intersects(complexPolygonS))
