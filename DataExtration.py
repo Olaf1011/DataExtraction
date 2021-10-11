@@ -4,6 +4,9 @@ import xml.etree.ElementTree as xml
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
+from ground.base import get_context
+from bentley_ottmann.planar import contour_self_intersects
+import time
 
 class Position(object):
     def __init__(self,pos):
@@ -37,7 +40,7 @@ class DataHandler:
         
 
     def ExtractData(self):
-        #try:
+        try:
             #To Do Rename bigData.xml
             #Opens kml(xml) file
             myFile = xml.parse("bigData.kml")
@@ -50,34 +53,56 @@ class DataHandler:
 
             self.mHasFile = True
 
-        #except:
-        #    print("couldn't open/find klm file.")
-        #    self.mHasFile = False
+        except:
+            print("couldn't open/find klm file.")
+            self.mHasFile = False
 
 
 
     def CheckData(self):
         if(not self.mHasFile):
             return
-        for x in range(len(self.mAllData)):
-            #x + 1 (+1 because the lines start at 1) to show which line is incorrect data
-            if(self.CheckPolygon(self.mAllData[x].pos)):
-                print("Line:", x + 1 , "is not a polygon.")
-
-            self.CheckAverage(self.mAllData[x].pos, x)
-            self.AddToMedian(self.mAllData[x].pos);
+        print("Running..")
+        #for x in range(len(self.mAllData)):
+        #    #x + 1 (+1 because the lines start at 1) to show which line is incorrect data
+        #    if(self.CheckPolygon(self.mAllData[x].pos)):
+        #        print("Line:", x + 1 , "is not a polygon.")
+        #    self.CheckAverage(self.mAllData[x].pos, x)
+        #    self.AddToMedian(self.mAllData[x].pos);
+        
+        self.BentleyOttman();
 
         #Needs to be outside of the loop because it needs the average amount of items in each element
-        self.CheckBelowAverage();
-        self.mMedianArray.sort()
+        #self.CheckBelowAverage();
+        #self.mMedianArray.sort()
         #put quartile ranges after this point THOMAS
-
-        self.Qaurtiles()
-        self.CountCheck()
+        #self.Qaurtiles()
+        #self.CountCheck()
 
         #self.PrintData()
         #self.NumberPolygonGrouping()
-        self.PlotData()
+        #self.PlotData()
+    
+    def BentleyOttman(self):
+        startTime = time.time() 
+        print("Running BentleyOttman..")
+        f = open("Bentley_Ottman.txt", "w")
+        for i in range(len(self.mAllData)):
+            context = get_context()
+            point , contour = context.point_cls, context.contour_cls
+            tempPolygon = []
+            for j in range(len(self.mAllData[i].pos) - 1):
+                tempPolygon.append((point(float(self.mAllData[i].pos[j].x), float(self.mAllData[i].pos[j].y))))    
+
+            if(contour_self_intersects(contour(tempPolygon))):
+                if(i != 0 and i != len(self.mAllData)):
+                    f.write(str("ODSCode of complex polygon: " + self.mAllData[i].name + ". ODSCode of previous: " + self.mAllData[i - 1].name + ". ODSCode of next: " + self.mAllData[i + 1].name + "\n"))
+                else:
+                    f.write(str("ODSCode of complex polygon: " + self.mAllData[i].name + ". This is either the last or first entry") + "\n")
+        
+        f.close()
+        print("Done Running Bentely Ottman it took %s seconds" % (time.time() - startTime))
+
 
     def Qaurtiles(self):
         #Finds the Lower and Upper Quartiles and calculates the Inter Quartile Range 
@@ -142,10 +167,12 @@ class DataHandler:
         f.close()
 
     def PlotData(self):
-        plt.figure(1)
-        #plt.subplot()
+        plt.figure()
         bp = plt.boxplot(self.mMedianArray,meanline=True, showmeans=True)
-        plt.xticks([1], ['mon'])
+        plt.xticks([1], ['March 2020'])
+        plt.xlabel('Polygons cooridnates grouped by year')
+        plt.ylabel('Total number of coordinates stored for polygons') 
+        plt.title('Spread of total coordinates for all boundry polygons in NHS dataset')
         plt.savefig("Boxplot of total number of points")
 
         DataPoints = []
@@ -164,28 +191,11 @@ class DataHandler:
         textstr = '\n'.join(DataPoints)
         print(textstr)
 
-        ## build a rectangle in axes coords
-        #left, width = .25, .5
-        #bottom, height = .25, .5
-        #right = left + width
-        #top = bottom + height
-        #fig = plt.figure()
-        #bp.add_axes([0, 0, 0.1, 0.1])
-        ## axes coordinates: (0, 0) is bottom left and (1, 1) is upper right
-        #p = patches.Rectangle((left, bottom), width, height,fill=False, transform=ax.transAxes, clip_on=False)
-        #ax.add_patch(p)
-
-        #ax.text(right, top, 'right bottom',horizontalalignment='right',verticalalignment='top',transform=ax.transAxes)
-
-        plt.text(.75, .75, textstr,horizontalalignment='right',verticalalignment='top')
-
+        plt.text(1.05, 2000, textstr,horizontalalignment='left',verticalalignment='top', bbox= dict(boxstyle='round', facecolor='wheat', alpha=0.5))
         
-        
-
-        plt.figure(3)
+        plt.figure(2)
         plt.hist(self.mMedianArray)
         plt.savefig("Histogram of total number of points")
-
 
         tempArrayX = []
         tempArrayY = []
@@ -240,52 +250,45 @@ class DataHandler:
         plt.boxplot(tempArrayDx)
 
         plt.figure(4)
+        plt.title('Frequency of total coordinates for all boundry polygons in NHS dataset')
         plt.bar(tempArrayX, tempArrayY)
         plt.savefig("Barchart of total number of points")
 
         plt.figure(5)
+        plt.suptitle('Frequency of total coordinates for all boundry polygons in NHS dataset')
+
         plt.subplot(2,2,1)
         plt.bar(tempArrayAx, tempArrayAy)
+        plt.xlabel('Total number of coordinates stored for polygons')
+        plt.ylabel('Frequency') 
+        plt.title('0-25% of the data')
         
         plt.subplot(2,2,2)
         plt.bar(tempArrayBx, tempArrayBy)
+        plt.xlabel('Total number of coordinates stored for polygons')
+        plt.ylabel('Frequency') 
+        plt.title('"25%-50% of the data')
 
         plt.subplot(2,2,3)
         plt.bar(tempArrayCx, tempArrayCy)
+        plt.xlabel('Total number of coordinates stored for polygons')
+        plt.ylabel('Frequency') 
+        plt.title('50%-75% of the data')
 
         plt.subplot(2,2,4)
         plt.bar(tempArrayDx, tempArrayDy)
-        
-              
+        plt.xlabel('Total number of coordinates stored for polygons')
+        plt.ylabel('Frequency') 
+        plt.title('75%-100% of the data')
+             
         plt.show()
 
 
+def Main():
+    Main = DataHandler()
+    Main.CheckData();
 
-Main = DataHandler()
-Main.CheckData();
+    print("Done")
 
-print("Done")
-
-#from ground.base import get_context
-#from bentley_ottmann.planar import contour_self_intersects
-
-#context = get_context()
-#Point, segment = context.point_cls, context.segment_cls
-##unit_segments = [segment(point(0, 0), point(1, 2)), 
-##                 segment(point(1, 2), point(2, 0)),
-##                 segment(point(2, 0), point(0,0))]
-
-#arrayTomBeingACunt = ["0,0","1,0","0,1"]
-#arrayTomBeingACuntB = [arrayTomBeingACunt[0].split(","),arrayTomBeingACunt[1].split(","),arrayTomBeingACunt[2].split(",")]
-
-#Contour = context.contour_cls
-
-##complexPolygonT = Contour([Point(0, 0), Point(1, 0), Point(0, 1)])
-
-#complexPolygonT = Contour([Point(arrayTomBeingACuntB[0][0],arrayTomBeingACuntB[0][1]), Point(arrayTomBeingACuntB[1][0],arrayTomBeingACuntB[1][1]), Point(arrayTomBeingACuntB[2][0],arrayTomBeingACuntB[2][1])])
-#complexPolygonC = Contour([Point(0, 0), Point(1, 0), Point(0, 1), Point(1,1)])
-#complexPolygonS = Contour([Point(0, 0), Point(1, 0), Point(1, 1), Point(0,1)])
-
-#print(contour_self_intersects(complexPolygonT))
-#print(contour_self_intersects(complexPolygonC))
-#print(contour_self_intersects(complexPolygonS))
+if __name__ == "__main__":
+    Main()
