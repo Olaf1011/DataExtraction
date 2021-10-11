@@ -63,27 +63,29 @@ class DataHandler:
         if(not self.mHasFile):
             return
         print("Running..")
-        #for x in range(len(self.mAllData)):
-        #    #x + 1 (+1 because the lines start at 1) to show which line is incorrect data
-        #    if(self.CheckPolygon(self.mAllData[x].pos)):
-        #        print("Line:", x + 1 , "is not a polygon.")
-        #    self.CheckAverage(self.mAllData[x].pos, x)
-        #    self.AddToMedian(self.mAllData[x].pos);
-        
+        for x in range(len(self.mAllData)):
+            #x + 1 (+1 because the lines start at 1) to show which line is incorrect data
+            if(self.CheckPolygon(self.mAllData[x].pos)):
+                print("Line:", x + 1 , "is not a polygon.")
+            self.CheckAverage(self.mAllData[x].pos, x)
+            self.AddToMedian(self.mAllData[x].pos);
+
         self.BentleyOttman();
 
         #Needs to be outside of the loop because it needs the average amount of items in each element
-        #self.CheckBelowAverage();
-        #self.mMedianArray.sort()
-        #put quartile ranges after this point THOMAS
-        #self.Qaurtiles()
-        #self.CountCheck()
+        self.CheckBelowAverage();
+        self.mMedianArray.sort()
+
+        self.Qaurtiles()
+        self.CountCheck()
 
         #self.PrintData()
-        #self.NumberPolygonGrouping()
-        #self.PlotData()
+        self.NumberPolygonGrouping()
+        self.PlotData()
     
     def BentleyOttman(self):
+        if(input("Are you sure you want to run BentleyOttman? Y/N ").lower() == "n"):
+            return
         startTime = time.time() 
         print("Running BentleyOttman..")
         f = open("Bentley_Ottman.txt", "w")
