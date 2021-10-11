@@ -7,6 +7,7 @@ import matplotlib.patches as patches
 from ground.base import get_context
 from bentley_ottmann.planar import contour_self_intersects
 import time
+import csv
 
 class Position(object):
     def __init__(self,pos):
@@ -18,8 +19,19 @@ class ImportedData(object):
         self.pos = []
         for i in range(len(coords)):
             self.pos.append(Position(coords[i].split(",")))
-
+        #OSDcode
         self.name = name
+        #Simple or complex polygon
+        self.isSimple = True
+        self.isPolygon = True
+        #Area of Polygons
+        self.Area = -1.0
+        #Unique id of data set
+        self.id = -1
+
+        #!!THOMAS!!
+        #for i in range(len(self.mAllData)):
+            #self.mAllData[i].Area = Value
 
 class DataHandler:
     def __init__(self):
@@ -64,13 +76,15 @@ class DataHandler:
             return
         print("Running..")
         for x in range(len(self.mAllData)):
+            self.mAlldata[x].id = x + 1
             #x + 1 (+1 because the lines start at 1) to show which line is incorrect data
             if(self.CheckPolygon(self.mAllData[x].pos)):
+                self.mAllData[x].isPolygon = False
                 print("Line:", x + 1 , "is not a polygon.")
             self.CheckAverage(self.mAllData[x].pos, x)
             self.AddToMedian(self.mAllData[x].pos);
 
-        self.BentleyOttman();
+        #self.BentleyOttman();
 
         #Needs to be outside of the loop because it needs the average amount of items in each element
         self.CheckBelowAverage();
@@ -80,7 +94,7 @@ class DataHandler:
         self.CountCheck()
 
         #self.PrintData()
-        self.NumberPolygonGrouping()
+        #self.NumberPolygonGrouping()
         self.PlotData()
     
     def BentleyOttman(self):
@@ -97,15 +111,16 @@ class DataHandler:
                 tempPolygon.append((point(float(self.mAllData[i].pos[j].x), float(self.mAllData[i].pos[j].y))))    
 
             if(contour_self_intersects(contour(tempPolygon))):
-                if(i != 0 and i != len(self.mAllData)):
-                    f.write(str("ODSCode of complex polygon: " + self.mAllData[i].name + ". ODSCode of previous: " + self.mAllData[i - 1].name + ". ODSCode of next: " + self.mAllData[i + 1].name + "\n"))
-                else:
-                    f.write(str("ODSCode of complex polygon: " + self.mAllData[i].name + ". This is either the last or first entry") + "\n")
+                self.mAllData[i].isSimple = False
+                #if(i != 0 and i != len(self.mAllData)):
+                #    f.write(str("ODSCode of complex polygon: " + self.mAllData[i].name + ". ODSCode of previous: " + self.mAllData[i - 1].name + ". ODSCode of next: " + self.mAllData[i + 1].name + "\n"))
+                #else:
+                #    f.write(str("ODSCode of complex polygon: " + self.mAllData[i].name + ". This is either the last or first entry") + "\n")
         
         f.close()
         print("Done Running Bentely Ottman it took %s seconds" % (time.time() - startTime))
 
-
+            
     def Qaurtiles(self):
         #Finds the Lower and Upper Quartiles and calculates the Inter Quartile Range 
         self.mMedian = statistics.median(self.mMedianArray)
@@ -167,6 +182,9 @@ class DataHandler:
                 x = "line: " + str(x) + " has less than " + str(int(self.mAverage)) + " - " + str(self.THRESHOLD) + " data points\n"
                 f.write(x)
         f.close()
+    
+    def ExportData():
+           with open('eggs.csv', 'w', newline='') as csvfile:
 
     def PlotData(self):
         plt.figure()
@@ -282,6 +300,8 @@ class DataHandler:
         plt.xlabel('Total number of coordinates stored for polygons')
         plt.ylabel('Frequency') 
         plt.title('75%-100% of the data')
+
+        plt.savefig("Four quarter Barcharts of total number of points")
              
         plt.show()
 
