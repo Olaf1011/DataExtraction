@@ -206,14 +206,14 @@ class DataHandler:
     
     def ExportData(self):
         print("Exporting data")
-        header = ["ID", "ODS code", "Is polygon", "Is Complex", "Area", " Perimeter","Spatial Coordinates [Lat , long]"]
+        header = ["ID", "ODS code", "Is polygon", "Is Complex", "Area (m^2)", " Perimeter (m)","Spatial Coordinates [Lat , long]"]
         with open('ExportedData.csv', 'w', newline='') as csvfile:
             writer = csv.writer(csvfile)
             writer.writerow(header)
             for allData in self.mAllData:
                 coords = ""
                 for i in range(len(allData.pos)):
-                    coords += "[" + str(allData.pos[i].x) + " , " + str(allData.pos[i].y) + "]"
+                    coords += str(allData.pos[i].x) + "," + str(allData.pos[i].y) + " "
                 data = [allData.id, allData.name, allData.isPolygon, not allData.isSimple, allData.area, allData.perimeter, coords]
                 writer.writerow(data)
 
