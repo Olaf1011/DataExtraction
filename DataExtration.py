@@ -8,6 +8,8 @@ from ground.base import get_context
 from bentley_ottmann.planar import contour_self_intersects
 import time
 import csv
+from shapely.geometry import Polygon
+from pyproj import Proj
 
 class Position(object):
     def __init__(self,pos):
@@ -25,7 +27,8 @@ class ImportedData(object):
         self.isSimple = True
         self.isPolygon = True
         #Area of Polygons
-        self.Area = -1.0
+        self.area = -1.0
+        self.perimeter = -1.0
         #Unique id of data set
         self.id = -1
 
@@ -76,7 +79,8 @@ class DataHandler:
             return
         print("Running..")
         for x in range(len(self.mAllData)):
-            self.mAlldata[x].id = x + 1
+                        
+            self.mAllData[x].id = x + 1
             #x + 1 (+1 because the lines start at 1) to show which line is incorrect data
             if(self.CheckPolygon(self.mAllData[x].pos)):
                 self.mAllData[x].isPolygon = False
@@ -84,7 +88,7 @@ class DataHandler:
             self.CheckAverage(self.mAllData[x].pos, x)
             self.AddToMedian(self.mAllData[x].pos);
 
-        #self.BentleyOttman();
+        self.BentleyOttman();
 
         #Needs to be outside of the loop because it needs the average amount of items in each element
         self.CheckBelowAverage();
@@ -93,8 +97,11 @@ class DataHandler:
         self.Qaurtiles()
         self.CountCheck()
 
+        self.PolygonCharacteristics()
         #self.PrintData()
         #self.NumberPolygonGrouping()
+
+        self.ExportData()
         self.PlotData()
     
     def BentleyOttman(self):
@@ -102,7 +109,7 @@ class DataHandler:
             return
         startTime = time.time() 
         print("Running BentleyOttman..")
-        f = open("Bentley_Ottman.txt", "w")
+        #f = open("Bentley_Ottman.txt", "w")
         for i in range(len(self.mAllData)):
             context = get_context()
             point , contour = context.point_cls, context.contour_cls
@@ -117,8 +124,22 @@ class DataHandler:
                 #else:
                 #    f.write(str("ODSCode of complex polygon: " + self.mAllData[i].name + ". This is either the last or first entry") + "\n")
         
-        f.close()
+        #f.close()
         print("Done Running Bentely Ottman it took %s seconds" % (time.time() - startTime))
+
+    def PolygonCharacteristics(self):
+        print("Calculating Area and Perimeter")
+        for i in range(len(self.mAllData)):
+            tempArray = []
+            pa = Proj("+proj=cass")
+            
+            for x in range(len(self.mAllData[i].pos)):
+                x, y = pa(float(self.mAllData[i].pos[x].x), float(self.mAllData[i].pos[x].y))  
+                tempArray.append((x, y))
+            polygon=Polygon(Polygon(tempArray))
+
+            self.mAllData[i].area = polygon.area
+            self.mAllData[i].perimeter = polygon.length
 
             
     def Qaurtiles(self):
@@ -183,8 +204,20 @@ class DataHandler:
                 f.write(x)
         f.close()
     
-    def ExportData():
-           with open('eggs.csv', 'w', newline='') as csvfile:
+    def ExportData(self):
+        print("Exporting data")
+        header = ["ID", "ODS code", "Is polygon", "Is Complex", "Area", " Perimeter","Spatial Coordinates [Lat , long]"]
+        with open('ExportedData.csv', 'w', newline='') as csvfile:
+            writer = csv.writer(csvfile)
+            writer.writerow(header)
+            for allData in self.mAllData:
+                coords = ""
+                for i in range(len(allData.pos)):
+                    coords += "[" + str(allData.pos[i].x) + " , " + str(allData.pos[i].y) + "]"
+                data = [allData.id, allData.name, allData.isPolygon, not allData.isSimple, allData.area, allData.perimeter, coords]
+                writer.writerow(data)
+
+
 
     def PlotData(self):
         plt.figure()
