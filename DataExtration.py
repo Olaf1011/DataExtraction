@@ -79,6 +79,9 @@ class DataHandler:
 			self.mHasFile = False
 
 		if self.mHasFile:
+			if input("This script will overwrite files made before by the same script."
+					 "\nIt will NOT overwrite the original KML file.\nContinue? y/n? ").lower() == "n":
+				return
 			# look for all instances of coordinats in kml file
 			assert (root is not None)
 			for i in range(1, len(root[0][0]) - 1):
@@ -125,14 +128,14 @@ class DataHandler:
 	def ExportToVisual(self):
 		print("Export to visuals")
 		self.ExportData()
-		if input("Would like you to plot the visual data? y/n ").lower() == "n":
+		if input("Would like you to plot the visual data? y/n? ").lower() == "n":
 			return
 		pd.PlotData(self.mMedianArray, self.mQuartileRange, self.mCountArray)
 
 	# Runs the Bentley Ottman algorithm (https://pypi.org/project/bentley-ottmann/)
 	# To check if the given polygons are complex
 	def BentleyOttman(self):
-		if input("Are you sure you want to run Bentley Ottman? Y/N ").lower() == "n":
+		if input("Are you sure you want to run Bentley Ottman? y/n? ").lower() == "n":
 			print("!!Heads up all sets will show 'FALSE' for 'Is complex'!!")
 			return
 		startTime = time.time()
@@ -223,19 +226,12 @@ class DataHandler:
 	# Checks how many unique ODScodes there are in the data set
 	def CheckUniqueness(self):
 		print("Checking uniques")
-		uniquesArray = [self.mAllData[0].name]
+		tempArray = []
+		# Move name data into it's own temp array to count
 		for data in self.mAllData:
-			isUnique = True
-			for uniques in uniquesArray:
-				# Checks if there is at least 1 entry in the uniquesArray that is equal to the name in mAllData
-				# If true it will not append the uniquesArray with the name as it's already recorded dus not an unique entry
-				if data.name == uniques:
-					isUnique = False
-					break
-			if isUnique:
-				uniquesArray.append(data.name)
+		    tempArray.append(data.name)
 
-		self.mUniques = len(uniquesArray)
+		self.mUniques = len(set(tempArray))
 
 	def ExportXML(self):
 		header = ["ID", "ODScode", "Ispolygon", "IsComplex", "NumberOfCoordinates", "Area",
