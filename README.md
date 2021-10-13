@@ -1,5 +1,5 @@
 To Install:
-	Python 3.7 (If not installed yet)
+	Python 3.7 (If not installed yet)</br>
 	pip install numpy
 	pip install matplotlib.pyplot
 	pip install bentley_ottmann.planar
