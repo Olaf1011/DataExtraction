@@ -84,6 +84,7 @@ class DataHandler:
 		self.AllCalculations()
 		self.ExportToVisual()
 
+		print("Done running all code.\nFind all export data in the same folder as this script")
 		# self.PrintData()
 		# self.NumberPolygonGrouping()
 
