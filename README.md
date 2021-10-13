@@ -6,7 +6,7 @@ NHS Digital publish GP boundary data at https://digital.nhs.uk/data-and-informat
 The goal was to design and build a model that analyses geographical polygon data to determine mathematical properties to derive a sense of quality regarding– shape, area, perimeter length, types, line crossings. See https://en.wikipedia.org/wiki/Polygon for definitions.</br>
 
 ## Design Consideration & Libraires Used</br></br>
-The design and checking calls on a number of Python mathematical libraires to evaluate, such as: -</br>
+The design and checking calls on a number of Python mathematical libraires to evaluate, such as:</br></br>
 import statistics</br>
 import numpy as np</br>
 import PlotData as pd</br>
@@ -15,7 +15,7 @@ from bentley_ottmann.planar import contour_self_intersects  # https://pypi.org/p
 from shapely.geometry import Polygon  # https://pypi.org/project/Shapely/</br>
 from pyproj import Proj  # https://pyproj4.github.io/pyproj/stable/index.html</br>
 
-## Installation</br></br>
+## Installation</br>
 ### Prerequisites</br>
 Python 3.7</br></br>
 ### Libraries</br>
@@ -27,7 +27,7 @@ pip install pyproj</br>
 pip install beautifulsoup</br>
 
 
-### Source Data</br>
+### Source Data
 Data File: DecJan-Mar2020.kml downloaded from https://digital.nhs.uk/data-and-information/data-collections-and-data-sets/data-collections/general-practice-data-collections)</br>
 
 ### Build, Run, Results – how to
