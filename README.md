@@ -9,6 +9,7 @@ The goal was to design and build a model that analyses geographical polygon data
 The design and checking calls on a number of Python mathematical libraires to evaluate, such as:</br></br>
 import statistics</br>
 import numpy as np</br>
+import [matplotlib.pyplot](https://matplotlib.org/stable/api/pyplot_summary.html) as plt
 from [ground.base](https://pypi.org/project/bentley-ottmann/) import get_context</br>
 from [bentley_ottmann.planar](https://pypi.org/project/bentley-ottmann/) import contour_self_intersects</br>
 from [shapely.geometry](https://pypi.org/project/Shapely/) import Polygon</br>
