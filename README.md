@@ -5,7 +5,8 @@ Made By Olaf Oude Reimer and Tom Wells</br></br>
 	pip install matplotlib.pyplot</br>
 	pip install bentley_ottmann.planar</br>
 	pip install shapely</br>
-	pip install pyproj</br></pre>
+	pip install pyproj</br>
+	pip install beautifulsoup4</br></pre>
 <b>Need:</b></br>
 	<pre>DecJan-Mar2020.kml (Download on https://digital.nhs.uk/data-and-information/data-collections-and-data-sets/data-collections/general-practice-data-collections)</br>
 </pre>
