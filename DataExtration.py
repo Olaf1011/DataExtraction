@@ -9,7 +9,7 @@ from ground.base import get_context  # https://pypi.org/project/bentley-ottmann/
 from bentley_ottmann.planar import contour_self_intersects  # https://pypi.org/project/bentley-ottmann/
 from shapely.geometry import Polygon  # https://pypi.org/project/Shapely/
 from pyproj import Proj  # https://pyproj4.github.io/pyproj/stable/index.html
-from xml.dom import minidom
+
 
 '''Made By Olaf Oude Reimer, with help from Thomas Wells'''
 
@@ -149,7 +149,7 @@ class DataHandler:
 			# If their is a line that intersects it will put False back into it's own data
 			if contour_self_intersects(contour(tempPolygon)):
 				self.mAllData[i].isSimple = False
-		print("Done Running Bentely Ottman it took %s seconds" % (time.time() - startTime))
+		print("Done Running Bentely Ottman. It took %s seconds" % (time.time() - startTime))
 
 	# Calculates the area and perimeter of the given polygons
 	def PolygonCharacteristics(self):
@@ -269,16 +269,15 @@ class DataHandler:
 				elif head == header[7]:
 					tempPos = ""
 					for positions in allData.pos:
-						tempPos += str(positions.longitude) + " " + str(positions.latitude) + ", "
+						tempPos += str(positions.longitude) + "," + str(positions.latitude) + " "
 					sub.text = str(tempPos)
 					sub.tail = "\n\t"
 				else:
 					assert(False, "Header is bigger than points of data")
 			root[-1].tail = "\n\t"
 
-
 		tree = ET.ElementTree(root)
-		tree.write("filename.xml")
+		tree.write("ExportedData.xml")
 
 	# Exports the data to a CSV file and text. Leaving out the coordinates as it's exceeds the excel char cell limit
 	# CSV contains: "ID", "ODS code", "Is polygon", "Is Complex", "Number of coordinates", "Area (km²)"," Perimeter (km)"
@@ -299,13 +298,11 @@ class DataHandler:
 			writer = csv.writer(csvfile)
 			writer.writerow(header)
 			for allData in self.mAllData:
-				coords = ""
-				for i in range(len(allData.pos)):
-					coords += str(allData.pos[i].longitude) + "," + str(allData.pos[i].latitude) + " "
 				data = [allData.id, allData.name, allData.isPolygon, not allData.isSimple, allData.vertices,
-				        (allData.area / 1000000.0), (allData.perimeter / 100.0)]
+			        (allData.area / 1000000.0), (allData.perimeter / 100.0)]
 				writer.writerow(data)
 		self.ExportXML()
+
 
 # Makes sure that it will only run these functions if this is the file that is being executed and not being imported
 if __name__ == "__main__":
