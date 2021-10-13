@@ -24,7 +24,6 @@ pip install matplotlib.pyplot</br>
 pip install bentley_ottmann.planar</br>
 pip install shapely</br>
 pip install pyproj</br>
-pip install beautifulsoup</br>
 
 ### Source Data
 Data File: [DecJan-Mar2020.kml](https://files.digital.nhs.uk/assets/eDEC/eDecJan-Mar2020.kml)</br>
