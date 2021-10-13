@@ -23,6 +23,8 @@ class ImportedData(object):
             self.pos.append(Position(coords[i].split(",")))
         #OSDcode
         self.name = name
+        #Number of cordinates
+        self.vertices = -1
         #Simple or complex polygon
         self.isSimple = True
         self.isPolygon = True
@@ -42,6 +44,8 @@ class DataHandler:
         self.mAllData = []
         self.mCountArray = []
         self.mMedianArray = []
+        self.mAreaZero = 0
+        self.mUniques = 0
         self.mAverage = 0
         self.mMedian = 0
         self.mUpperQaurtile = 0
@@ -87,7 +91,8 @@ class DataHandler:
                 print("Line:", x + 1 , "is not a polygon.")
             self.CheckAverage(self.mAllData[x].pos, x)
             self.AddToMedian(self.mAllData[x].pos);
-
+            self.mAllData[x].vertices = len(self.mAllData[x].pos)
+            
         self.BentleyOttman();
 
         #Needs to be outside of the loop because it needs the average amount of items in each element
@@ -101,6 +106,7 @@ class DataHandler:
         #self.PrintData()
         #self.NumberPolygonGrouping()
 
+        self.CheckUniqueness()
         self.ExportData()
         self.PlotData()
     
@@ -140,6 +146,10 @@ class DataHandler:
 
             self.mAllData[i].area = polygon.area
             self.mAllData[i].perimeter = polygon.length
+            if(polygon.area == 0.0):
+                self.mAreaZero += 1
+        print("Areas = 0:", self.mAreaZero)
+                
 
             
     def Qaurtiles(self):
@@ -167,6 +177,7 @@ class DataHandler:
 
     def AddToMedian(self, lineData):
         self.mMedianArray.append(len(lineData))
+        
            
     def CheckPolygon(self, lineData):
         #Checks how big the array is and picks the integer for the last item in the array
@@ -202,20 +213,44 @@ class DataHandler:
             if(len(self.mAllData[x].pos) < self.mAverage - self.THRESHOLD):
                 x = "line: " + str(x) + " has less than " + str(int(self.mAverage)) + " - " + str(self.THRESHOLD) + " data points\n"
                 f.write(x)
-        f.close()
+        ##f.close()
     
     def ExportData(self):
         print("Exporting data")
-        header = ["ID", "ODS code", "Is polygon", "Is Complex", "Area (m^2)", " Perimeter (m)","Spatial Coordinates [Lat , long]"]
-        with open('ExportedData.csv', 'w', newline='') as csvfile:
+        f = open("ExtraDataExport.txt", "w")
+        tempString = "Areas equal to 0: "
+        tempString += str(self.mAreaZero)
+        f.write(tempString)
+        tempString = "\nUnique entries: "
+        tempString += str(self.mUniques)
+        f.write(tempString)
+        f.close()
+        header = ["ID", "ODS code", "Is polygon", "Is Complex", "Number of coordinates","Area (km²)", " Perimeter (km)"]
+        with open('PolygonData.csv', 'w', newline='') as csvfile:
             writer = csv.writer(csvfile)
             writer.writerow(header)
             for allData in self.mAllData:
                 coords = ""
                 for i in range(len(allData.pos)):
                     coords += str(allData.pos[i].x) + "," + str(allData.pos[i].y) + " "
-                data = [allData.id, allData.name, allData.isPolygon, not allData.isSimple, allData.area, allData.perimeter, coords]
+                data = [allData.id, allData.name, allData.isPolygon, not allData.isSimple, allData.vertices, ( allData.area / 1000000.0), (allData.perimeter / 100.0)]
                 writer.writerow(data)
+                
+    def CheckUniqueness(self):
+        print("Checking uniques")
+        uniquesArray = [self.mAllData[0].name]
+        for data in self.mAllData:
+            isUnique = True
+            for uniques in uniquesArray:
+                #Checks if there is at least 1 entry in the uniquesArray that is equal to the name in mAllData
+                #If true it will not append the uniquesArray with the name as it's already recorded dus not an unique entry
+                if(data.name == uniques):
+                    isUnique = False
+                    break
+            if(isUnique):
+                uniquesArray.append(data.name)
+        self.mUniques = len(uniquesArray)
+        print("Uniques:" , self.mUniques)
 
 
 
