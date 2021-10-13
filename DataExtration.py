@@ -100,19 +100,18 @@ class DataHandler:
 			self.AddToMedian(self.mAllData[x].pos);
 			self.mAllData[x].vertices = len(self.mAllData[x].pos)
 
-			self.BentleyOttman();
+		self.BentleyOttman();
 
-			# Needs to be outside of the loop because it needs the average amount of items in each element
-			self.CheckBelowAverage();
-			self.mMedianArray.sort()
+		# Needs to be outside of the loop because it needs the average amount of items in each element
+		self.CheckBelowAverage();
+		self.mMedianArray.sort()
 
-			self.Quartiles()
-			self.CountCheck()
+		self.Quartiles()
+		self.CountCheck()
 
-			self.PolygonCharacteristics()
-			self.CheckUniqueness()
-			print("Done Running calculations")
-
+		self.PolygonCharacteristics()
+		self.CheckUniqueness()
+		print("Done Running calculations")
 
 	def ExportToVisual(self):
 		print("Export to visuals")
@@ -311,24 +310,13 @@ class DataHandler:
 		for i in range(ThirdQ + 1, FourthQ):
 			tempArrayDx.append(tempArrayX[i])
 			tempArrayDy.append(tempArrayY[i])
-		#TODO Remove
-		plt.figure(3)
-		plt.subplot(2, 2, 1)
-		plt.boxplot(tempArrayAx)
-
-		plt.subplot(2, 2, 2)
-		plt.boxplot(tempArrayBx)
-
-		plt.subplot(2, 2, 3)
-		plt.boxplot(tempArrayCx)
-
-		plt.subplot(2, 2, 4)
-		plt.boxplot(tempArrayDx)
 
 		#TODO Add axis labels
 		plt.figure(4)
 		plt.title('Frequency of total coordinates for all boundary polygons in NHS dataset')
 		plt.bar(tempArrayX, tempArrayY)
+		plt.xlabel('Total number of coordinates stored for polygons')
+		plt.ylabel('Frequency')
 		plt.savefig("Barchart of total number of points")
 
 		plt.figure(5)
@@ -344,7 +332,7 @@ class DataHandler:
 		plt.bar(tempArrayBx, tempArrayBy)
 		plt.xlabel('Total number of coordinates stored for polygons')
 		plt.ylabel('Frequency')
-		plt.title('"25%-50% of the data')
+		plt.title('25%-50% of the data')
 
 		plt.subplot(2, 2, 3)
 		plt.bar(tempArrayCx, tempArrayCy)
@@ -358,7 +346,7 @@ class DataHandler:
 		plt.ylabel('Frequency')
 		plt.title('75%-100% of the data')
 
-		plt.savefig("Four quarter Barcharts of total number of points")
+		plt.savefig("Four quarter Barchart of total number of points")
 
 		plt.show()
 
