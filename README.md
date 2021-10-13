@@ -1,6 +1,6 @@
 ## Introduction</br>
-In seeking to expand and develop data exploration skills using Python and mathematical problem-solving techniques, it was decided to investigate and study the quality of geographical (lng/lat) plot data.  An opportunity arose whereby a thought experiment could be applied to a data set published by NHS Digital, regarding GP boundaries.</br>
-NHS Digital publish GP boundary data at https://digital.nhs.uk/data-and-information/data-collections-and-data-sets/data-collections/general-practice-data-collections , on an annual basis. The website makes clear that the data is of ‘reasonable accuracy’ and that GP’s are required to update when changes occur to their boundaries.  The website also makes users of this public data aware, that it is an exact copy, and no forward cleansing or modification is undertaken.</br>
+In seeking to expand and develop data exploration skills using Python and mathematical problem-solving techniques, it was decided to investigate and study the quality of geographical (lng/lat) plot data.  An opportunity arose whereby a thought experiment could be applied to a data set published by NHS Digital, regarding GP boundaries.
+[NHS Digital publish GP boundary data](https://digital.nhs.uk/data-and-information/data-collections-and-data-sets/data-collections/general-practice-data-collections) , on an annual basis. The website makes clear that the data is of ‘reasonable accuracy’ and that GP’s are required to update when changes occur to their boundaries.  The website also makes users of this public data aware, that it is an exact copy, and no forward cleansing or modification is undertaken.</br>
 
 ## Thought Experiment Goal
 The goal was to design and build a model that analyses geographical polygon data to determine mathematical properties to derive a sense of quality regarding– shape, area, perimeter length, types, line crossings. See https://en.wikipedia.org/wiki/Polygon for definitions.</br>
@@ -9,15 +9,14 @@ The goal was to design and build a model that analyses geographical polygon data
 The design and checking calls on a number of Python mathematical libraires to evaluate, such as:</br></br>
 import statistics</br>
 import numpy as np</br>
-import PlotData as pd</br>
-from ground.base import get_context  # https://pypi.org/project/bentley-ottmann/</br>
-from bentley_ottmann.planar import contour_self_intersects  # https://pypi.org/project/bentley-ottmann/</br>
-from shapely.geometry import Polygon  # https://pypi.org/project/Shapely/</br>
-from pyproj import Proj  # https://pyproj4.github.io/pyproj/stable/index.html</br>
+from [ground.base](https://pypi.org/project/bentley-ottmann/) import get_context</br>
+from [bentley_ottmann.planar](https://pypi.org/project/bentley-ottmann/) import contour_self_intersects</br>
+from [shapely.geometry](https://pypi.org/project/Shapely/) import Polygon</br>
+from [pyproj]( https://pyproj4.github.io/pyproj/stable/index.html) import Proj</br>
 
 ## Installation
 ### Prerequisites
-Python 3.7</br></br>
+Python 3.7</br>
 ### Libraries
 pip install numpy</br>
 pip install matplotlib.pyplot</br>
@@ -25,7 +24,6 @@ pip install bentley_ottmann.planar</br>
 pip install shapely</br>
 pip install pyproj</br>
 pip install beautifulsoup</br>
-
 
 ### Source Data
 Data File: DecJan-Mar2020.kml downloaded from https://digital.nhs.uk/data-and-information/data-collections-and-data-sets/data-collections/general-practice-data-collections)</br>
