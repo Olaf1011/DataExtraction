@@ -349,3 +349,6 @@ healthchecksdb
 *.png
 /.editorconfig
 /eDecJan-Mar2020.kml
+/Data Quality Analysis of NHS Boundary Dataset.pptx
+/ExportedData.xml
+/filename.xml
