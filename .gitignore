@@ -347,3 +347,4 @@ healthchecksdb
 *.csv
 *.txt
 *.png
+/.editorconfig

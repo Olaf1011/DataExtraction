@@ -62,7 +62,6 @@ class DataHandler:
 
 	def ExtractData(self):
 		try:
-			# To Do Rename bigData.xml
 			# Opens kml(xml) file
 			myFile = xml.parse(self.mFileName)
 			root = myFile.getroot()
