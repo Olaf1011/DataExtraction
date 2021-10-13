@@ -1,13 +1,14 @@
 import statistics
-import xml.etree.ElementTree as xml
-import numpy as np
-import matplotlib.pyplot as plt
-from ground.base import get_context
-from bentley_ottmann.planar import contour_self_intersects
 import time
 import csv
+import xml.etree.ElementTree as xml
+import numpy as np
+import PlotData as pd
+from ground.base import get_context
+from bentley_ottmann.planar import contour_self_intersects
 from shapely.geometry import Polygon
 from pyproj import Proj
+'''Made By Olaf Oude Reimer, with help from Thomas Wells'''
 
 
 class Position(object):
@@ -33,10 +34,6 @@ class ImportedData(object):
 		self.perimeter = -1.0
 		# Unique id of data set
 		self.id = -1
-
-# !!THOMAS!!
-# for i in range(len(self.mAllData)):
-# self.mAllData[i].Area = Value
 
 
 class DataHandler:
@@ -68,7 +65,12 @@ class DataHandler:
 		except:
 			print("couldn't open/find {}.".format(self.mFileName))
 			print("Make sure the file is in the same folder as the python script")
+			if input("Different name y/n?").lower() == "y":
+				self.mFileName = input("New name:")
+				self.ExtractData()
+				return
 			self.mHasFile = False
+
 
 		if self.mHasFile:
 			# look for all instances of coordinats in kml file
@@ -85,8 +87,9 @@ class DataHandler:
 		self.ExportToVisual()
 
 		print("Done running all code.\nFind all export data in the same folder as this script")
-		# self.PrintData()
-		# self.NumberPolygonGrouping()
+
+	# self.PrintData()
+	# self.NumberPolygonGrouping()
 
 	def AllCalculations(self):
 		for x in range(len(self.mAllData)):
@@ -97,13 +100,11 @@ class DataHandler:
 				self.mAllData[x].isPolygon = False
 				print("Line:", x + 1, "is not a polygon.")
 			self.CheckAverage(self.mAllData[x].pos, x)
-			self.AddToMedian(self.mAllData[x].pos);
+			self.AddToMedian(self.mAllData[x].pos)
 			self.mAllData[x].vertices = len(self.mAllData[x].pos)
 
-		self.BentleyOttman();
+		self.BentleyOttman()
 
-		# Needs to be outside of the loop because it needs the average amount of items in each element
-		self.CheckBelowAverage();
 		self.mMedianArray.sort()
 
 		self.Quartiles()
@@ -116,7 +117,7 @@ class DataHandler:
 	def ExportToVisual(self):
 		print("Export to visuals")
 		self.ExportData()
-		self.PlotData()
+		pd.PlotData(self.mMedianArray, self.mQuartileRange, self.mCountArray)
 
 	def BentleyOttman(self):
 		if input("Are you sure you want to run Bentley Ottman? Y/N ").lower() == "n":
@@ -191,20 +192,6 @@ class DataHandler:
 			x += countResult
 			i += 1
 
-	def CheckBelowAverage(self):
-		# Prints the result into a txt file for easier use. (!!Overwrites the previous one with same name!!)
-		f = open("AverageResult.txt", "w")
-
-		for x in range(len(self.mAllData)):
-			# Checks if the items in element is less than the average amount of items in elements.
-			# If true print which element has too little data.
-			# Threshold is to make sure that it isn't a too little difference.
-			if len(self.mAllData[x].pos) < self.mAverage - self.THRESHOLD:
-				x = "line: " + str(x) + " has less than " + str(int(self.mAverage)) + " - " + str(
-					self.THRESHOLD) + " data points\n"
-				f.write(x)
-		f.close()
-
 	def CheckUniqueness(self):
 		print("Checking uniques")
 		uniquesArray = [self.mAllData[0].name]
@@ -244,113 +231,7 @@ class DataHandler:
 				        (allData.area / 1000000.0), (allData.perimeter / 100.0)]
 				writer.writerow(data)
 
-	def PlotData(self):
-		plt.figure()
-		bp = plt.boxplot(self.mMedianArray, meanline=True, showmeans=True)
-		plt.xticks([1], ['March 2020'])
-		plt.xlabel('Polygons coordinates grouped by year')
-		plt.ylabel('Total number of coordinates stored for polygons')
-		plt.title('Spread of total coordinates for all boundary polygons in NHS dataset')
-		plt.savefig("Boxplot of total number of points")
-
-		DataPoints = ["Mean is: {:d}".format(int(bp['means'][0].get_ydata()[0])),
-		              "Median is: {:d}".format(int(bp['medians'][0].get_ydata()[0])),
-		              "Lower Quartile is: {:d}".format(int(bp['boxes'][0].get_ydata()[0])),
-		              "Upper Quartile is: {:d}".format(int(bp['boxes'][0].get_ydata()[2])),
-		              "Inter quartile Range is: {:d}".format(int(self.mQuartileRange)),
-		              "Actual Max is: {:d}".format(int(max(self.mMedianArray))),
-		              "Calculated Max is: {:d}".format(int(bp['caps'][1].get_ydata()[0])),
-		              "Actual Min is: {:d}".format(int(min(self.mMedianArray))),
-		              "Calculated Min is: {:d}".format(int(bp['caps'][0].get_ydata()[0]))]
-
-		textstr = '\n'.join(DataPoints)
-		print(textstr)
-
-		plt.text(1.05, 2000, textstr, horizontalalignment='left', verticalalignment='top',
-		         bbox=dict(boxstyle='round', facecolor='wheat', alpha=0.5))
-
-		plt.figure(2)
-		plt.hist(self.mMedianArray)
-		plt.savefig("Histogram of total number of points")
-
-		tempArrayX = []
-		tempArrayY = []
-		for i in range(len(self.mCountArray)):
-			if self.mCountArray[i] != 0:
-				tempArrayX.append(i)
-				tempArrayY.append(self.mCountArray[i])
-		print(len(self.mMedianArray))
-
-		FirstQ = int(len(tempArrayY) / 4)
-		SecondQ = FirstQ * 2
-		ThirdQ = FirstQ * 3
-		FourthQ = len(tempArrayY)
-
-		tempArrayAx = []
-		tempArrayAy = []
-		tempArrayBx = []
-		tempArrayBy = []
-		tempArrayCx = []
-		tempArrayCy = []
-		tempArrayDx = []
-		tempArrayDy = []
-
-		for i in range(0, FirstQ):
-			tempArrayAx.append(tempArrayX[i])
-			tempArrayAy.append(tempArrayY[i])
-
-		for i in range(FirstQ + 1, SecondQ):
-			tempArrayBx.append(tempArrayX[i])
-			tempArrayBy.append(tempArrayY[i])
-
-		for i in range(SecondQ + 1, ThirdQ):
-			tempArrayCx.append(tempArrayX[i])
-			tempArrayCy.append(tempArrayY[i])
-
-		for i in range(ThirdQ + 1, FourthQ):
-			tempArrayDx.append(tempArrayX[i])
-			tempArrayDy.append(tempArrayY[i])
-
-		#TODO Add axis labels
-		plt.figure(4)
-		plt.title('Frequency of total coordinates for all boundary polygons in NHS dataset')
-		plt.bar(tempArrayX, tempArrayY)
-		plt.xlabel('Total number of coordinates stored for polygons')
-		plt.ylabel('Frequency')
-		plt.savefig("Barchart of total number of points")
-
-		plt.figure(5)
-		plt.suptitle('Frequency of total coordinates for all boundary polygons in NHS dataset')
-
-		plt.subplot(2, 2, 1)
-		plt.bar(tempArrayAx, tempArrayAy)
-		plt.xlabel('Total number of coordinates stored for polygons')
-		plt.ylabel('Frequency')
-		plt.title('0-25% of the data')
-
-		plt.subplot(2, 2, 2)
-		plt.bar(tempArrayBx, tempArrayBy)
-		plt.xlabel('Total number of coordinates stored for polygons')
-		plt.ylabel('Frequency')
-		plt.title('25%-50% of the data')
-
-		plt.subplot(2, 2, 3)
-		plt.bar(tempArrayCx, tempArrayCy)
-		plt.xlabel('Total number of coordinates stored for polygons')
-		plt.ylabel('Frequency')
-		plt.title('50%-75% of the data')
-
-		plt.subplot(2, 2, 4)
-		plt.bar(tempArrayDx, tempArrayDy)
-		plt.xlabel('Total number of coordinates stored for polygons')
-		plt.ylabel('Frequency')
-		plt.title('75%-100% of the data')
-
-		plt.savefig("Four quarter Barchart of total number of points")
-
-		plt.show()
-
 
 if __name__ == "__main__":
 	Main = DataHandler()
-	Main.CheckData();
+	Main.CheckData()
