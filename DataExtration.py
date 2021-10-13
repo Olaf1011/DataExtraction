@@ -88,30 +88,31 @@ class DataHandler:
 		# self.PrintData()
 		# self.NumberPolygonGrouping()
 
-		def AllCalculations(self):
-			for x in range(len(self.mAllData)):
+	def AllCalculations(self):
+		for x in range(len(self.mAllData)):
 
-				self.mAllData[x].id = x + 1
-				# x + 1 (+1 because the lines start at 1) to show which line is incorrect data
-				if self.CheckPolygon(self.mAllData[x].pos):
-					self.mAllData[x].isPolygon = False
-					print("Line:", x + 1, "is not a polygon.")
-				self.CheckAverage(self.mAllData[x].pos, x)
-				self.AddToMedian(self.mAllData[x].pos);
-				self.mAllData[x].vertices = len(self.mAllData[x].pos)
+			self.mAllData[x].id = x + 1
+			# x + 1 (+1 because the lines start at 1) to show which line is incorrect data
+			if self.CheckPolygon(self.mAllData[x].pos):
+				self.mAllData[x].isPolygon = False
+				print("Line:", x + 1, "is not a polygon.")
+			self.CheckAverage(self.mAllData[x].pos, x)
+			self.AddToMedian(self.mAllData[x].pos);
+			self.mAllData[x].vertices = len(self.mAllData[x].pos)
 
-				self.BentleyOttman();
+			self.BentleyOttman();
 
-				# Needs to be outside of the loop because it needs the average amount of items in each element
-				self.CheckBelowAverage();
-				self.mMedianArray.sort()
+			# Needs to be outside of the loop because it needs the average amount of items in each element
+			self.CheckBelowAverage();
+			self.mMedianArray.sort()
 
-				self.Quartiles()
-				self.CountCheck()
+			self.Quartiles()
+			self.CountCheck()
 
-				self.PolygonCharacteristics()
-				self.CheckUniqueness()
-				print("Done Running calculations")
+			self.PolygonCharacteristics()
+			self.CheckUniqueness()
+			print("Done Running calculations")
+
 
 	def ExportToVisual(self):
 		print("Export to visuals")
@@ -310,7 +311,7 @@ class DataHandler:
 		for i in range(ThirdQ + 1, FourthQ):
 			tempArrayDx.append(tempArrayX[i])
 			tempArrayDy.append(tempArrayY[i])
-
+		#TODO Remove
 		plt.figure(3)
 		plt.subplot(2, 2, 1)
 		plt.boxplot(tempArrayAx)
@@ -324,6 +325,7 @@ class DataHandler:
 		plt.subplot(2, 2, 4)
 		plt.boxplot(tempArrayDx)
 
+		#TODO Add axis labels
 		plt.figure(4)
 		plt.title('Frequency of total coordinates for all boundary polygons in NHS dataset')
 		plt.bar(tempArrayX, tempArrayY)
