@@ -2,12 +2,14 @@ import statistics
 import time
 import csv
 import xml.etree.ElementTree as xml
+import xml.etree.cElementTree as ET
 import numpy as np
 import PlotData as pd
 from ground.base import get_context  # https://pypi.org/project/bentley-ottmann/
 from bentley_ottmann.planar import contour_self_intersects  # https://pypi.org/project/bentley-ottmann/
 from shapely.geometry import Polygon  # https://pypi.org/project/Shapely/
 from pyproj import Proj  # https://pyproj4.github.io/pyproj/stable/index.html
+from xml.dom import minidom
 
 '''Made By Olaf Oude Reimer, with help from Thomas Wells'''
 
@@ -68,8 +70,8 @@ class DataHandler:
 			print("Make sure the file is in the same folder as the python script")
 			# Checks if the name might have changed. Gives the user the option to type in the new name.
 			#
-			if input("Different name y/n?").lower() == "y":
-				self.mFileName = input("New name:")
+			if input("Different name y/n? ").lower() == "y":
+				self.mFileName = input("New name: ")
 				# Loops back to the top to try the new name. Comes back here if name doesn't work
 				self.ExtractData()
 				# Makes sure it doesn't run the rest
@@ -123,12 +125,15 @@ class DataHandler:
 	def ExportToVisual(self):
 		print("Export to visuals")
 		self.ExportData()
+		if input("Would like you to plot the visual data? y/n ").lower() == "n":
+			return
 		pd.PlotData(self.mMedianArray, self.mQuartileRange, self.mCountArray)
 
 	# Runs the Bentley Ottman algorithm (https://pypi.org/project/bentley-ottmann/)
 	# To check if the given polygons are complex
 	def BentleyOttman(self):
 		if input("Are you sure you want to run Bentley Ottman? Y/N ").lower() == "n":
+			print("!!Heads up all sets will show 'FALSE' for 'Is complex'!!")
 			return
 		startTime = time.time()
 		print("Running Bentley Ottman..")
@@ -232,6 +237,49 @@ class DataHandler:
 
 		self.mUniques = len(uniquesArray)
 
+	def ExportXML(self):
+		header = ["ID", "ODScode", "Ispolygon", "IsComplex", "NumberOfCoordinates", "Area",
+		          "Perimeter", "Coordinates"]
+		root = ET.Element("Data")
+		root.tail = "\n"
+		root.text = "\n\t"
+		for allData in self.mAllData:
+			doc = ET.SubElement(root, "Set")
+			doc.tail = "\n"
+			doc.text = "\n\t\t"
+			for head in header:
+				sub = ET.SubElement(doc, str(head))
+				sub.tail = "\n\t\t"
+				if head == header[0]:
+					sub.text = str(allData.id)
+				elif head == header[1]:
+					sub.text = str(allData.name)
+				elif head == header[2]:
+					sub.text = str(allData.isPolygon)
+				elif head == header[3]:
+					sub.text = str(not allData.isSimple)
+				elif head == header[4]:
+					sub.text = str(allData.vertices)
+				elif head == header[5]:
+					sub.set("Units", "km^2")
+					sub.text = str(allData.area / 1000000.0)
+				elif head == header[6]:
+					sub.text = str(allData.perimeter / 100.0)
+					sub.set("Units", "km")
+				elif head == header[7]:
+					tempPos = ""
+					for positions in allData.pos:
+						tempPos += str(positions.longitude) + " " + str(positions.latitude) + ", "
+					sub.text = str(tempPos)
+					sub.tail = "\n\t"
+				else:
+					assert(False, "Header is bigger than points of data")
+			root[-1].tail = "\n\t"
+
+
+		tree = ET.ElementTree(root)
+		tree.write("filename.xml")
+
 	# Exports the data to a CSV file and text. Leaving out the coordinates as it's exceeds the excel char cell limit
 	# CSV contains: "ID", "ODS code", "Is polygon", "Is Complex", "Number of coordinates", "Area (km²)"," Perimeter (km)"
 	# Text contains: "Areas equal to 0:", "Unique entries:"
@@ -257,6 +305,7 @@ class DataHandler:
 				data = [allData.id, allData.name, allData.isPolygon, not allData.isSimple, allData.vertices,
 				        (allData.area / 1000000.0), (allData.perimeter / 100.0)]
 				writer.writerow(data)
+		self.ExportXML()
 
 # Makes sure that it will only run these functions if this is the file that is being executed and not being imported
 if __name__ == "__main__":
