@@ -2,7 +2,7 @@
 In seeking to expand and develop data exploration skills using Python and mathematical problem-solving techniques, it was decided to investigate and study the quality of geographical (lng/lat) plot data.  An opportunity arose whereby a thought experiment could be applied to a data set published by NHS Digital, regarding GP boundaries.</br>
 NHS Digital publish GP boundary data at https://digital.nhs.uk/data-and-information/data-collections-and-data-sets/data-collections/general-practice-data-collections , on an annual basis. The website makes clear that the data is of ‘reasonable accuracy’ and that GP’s are required to update when changes occur to their boundaries.  The website also makes users of this public data aware, that it is an exact copy, and no forward cleansing or modification is undertaken.</br>
 
-## Thought Experiment Goal</br></br>
+## Thought Experiment Goal
 The goal was to design and build a model that analyses geographical polygon data to determine mathematical properties to derive a sense of quality regarding– shape, area, perimeter length, types, line crossings. See https://en.wikipedia.org/wiki/Polygon for definitions.</br>
 
 ## Design Consideration & Libraires Used</br></br>
