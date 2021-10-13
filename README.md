@@ -1,3 +1,4 @@
+Made By Olaf Oude Reimer and Tom Wells
 <b>To Install:</b></br>
 	<pre>Python 3.7 (If not installed yet)</br>
 	pip install numpy</br>
