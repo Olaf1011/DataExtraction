@@ -260,7 +260,7 @@ class DataHandler:
 					sub.set("Units", "km^2")
 					sub.text = str(allData.area / 1000000.0)
 				elif head == header[6]:
-					sub.text = str(allData.perimeter / 100.0)
+					sub.text = str(allData.perimeter / 1000.0)
 					sub.set("Units", "km")
 				elif head == header[7]:
 					tempPos = ""
@@ -295,7 +295,7 @@ class DataHandler:
 			writer.writerow(header)
 			for allData in self.mAllData:
 				data = [allData.id, allData.name, allData.isPolygon, not allData.isSimple, allData.vertices,
-			        (allData.area / 1000000.0), (allData.perimeter / 100.0)]
+			        (allData.area / 1000000.0), (allData.perimeter / 1000.0)]
 				writer.writerow(data)
 		self.ExportXML()
 
